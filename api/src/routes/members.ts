@@ -4,6 +4,10 @@ import { z } from "zod";
 import { pool } from "../db.js";
 
 const idParam = z.object({ id: z.coerce.number().int().positive() });
+const memberBody = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+});
 
 export const members = new Hono();
 
@@ -27,4 +31,13 @@ members.get("/:id", zValidator("param", idParam), async (c) => {
     );
   }
   return c.json(rows[0]);
+});
+
+members.post("/", zValidator("json", memberBody), async (c) => {
+  const { name, email } = c.req.valid("json");
+  const { rows } = await pool.query(
+    "INSERT INTO app.members (name, email) VALUES ($1, $2) RETURNING id, name, email, created_at",
+    [name, email],
+  );
+  return c.json(rows[0], 201);
 });
