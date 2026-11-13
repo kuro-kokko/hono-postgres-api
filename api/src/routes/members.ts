@@ -41,3 +41,24 @@ members.post("/", zValidator("json", memberBody), async (c) => {
   );
   return c.json(rows[0], 201);
 });
+
+members.put(
+  "/:id",
+  zValidator("param", idParam),
+  zValidator("json", memberBody),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { name, email } = c.req.valid("json");
+    const { rows } = await pool.query(
+      "UPDATE app.members SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email, created_at",
+      [name, email, id],
+    );
+    if (rows.length === 0) {
+      return c.json(
+        { error: { code: "NOT_FOUND", message: "member not found" } },
+        404,
+      );
+    }
+    return c.json(rows[0]);
+  },
+);
