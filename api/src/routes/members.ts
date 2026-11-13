@@ -62,3 +62,17 @@ members.put(
     return c.json(rows[0]);
   },
 );
+
+members.delete("/:id", zValidator("param", idParam), async (c) => {
+  const { id } = c.req.valid("param");
+  const result = await pool.query("DELETE FROM app.members WHERE id = $1", [
+    id,
+  ]);
+  if (result.rowCount === 0) {
+    return c.json(
+      { error: { code: "NOT_FOUND", message: "member not found" } },
+      404,
+    );
+  }
+  return c.body(null, 204);
+});
