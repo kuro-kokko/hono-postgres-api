@@ -1,3 +1,5 @@
+name: hono-postgres-api
+
 services:
   db:
     image: postgres:18
