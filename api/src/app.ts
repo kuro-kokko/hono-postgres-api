@@ -16,6 +16,7 @@ app.notFound((c) =>
 
 app.onError((err, c) => {
   if ((err as { code?: string }).code === "23505") {
+    // Unique violation error code for PostgreSQL
     return c.json(
       { error: { code: "CONFLICT", message: "email already exists" } },
       409,
