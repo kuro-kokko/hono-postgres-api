@@ -1,6 +1,16 @@
 name: hono-postgres-api
 
 services:
+  api:
+    build: ./api
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://pguser:password4321@db:5432/postgres
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: postgres:18
     # container_name: postgres  # 同名コンテナが他プロジェクトに存在すると衝突し、スケールも出来なくなるため指定しない
@@ -13,5 +23,10 @@ services:
     volumes:
       - db-data:/var/lib/postgresql
       - ./db/init:/docker-entrypoint-initdb.d:ro #末尾のroは読み取り専用の意味
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pguser -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 volumes:
   db-data:
