@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18
+    # container_name: postgres  # 同名コンテナが他プロジェクトに存在すると衝突し、スケールも出来なくなるため指定しない
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: password4321
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./db/init:/docker-entrypoint-initdb.d:ro #末尾のroは読み取り専用の意味
+volumes:
+  db-data:
